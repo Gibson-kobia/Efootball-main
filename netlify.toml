@@ -1,3 +1,4 @@
 [build]
+  base = "Efootball-main/Efootball-main"
   command = "npm run build"
   publish = ".next"
