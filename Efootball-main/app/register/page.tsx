@@ -24,18 +24,32 @@ export default function RegisterPage() {
     } catch {}
   }, []);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     setError('');
     setLoading(true);
     try {
+      // Persist success locally
       if (typeof window !== 'undefined') {
         window.localStorage.setItem('registration_success', 'true');
       }
+      // Submit to Netlify Forms without navigation
+      const formEl = e.currentTarget;
+      const data = new FormData(formEl);
+      const payload = new URLSearchParams();
+      data.forEach((value, key) => payload.append(key, String(value)));
+      if (!payload.has('form-name')) payload.append('form-name', 'registration');
+      await fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: payload.toString(),
+      });
       setSuccess(true);
+    } catch (err: any) {
+      setError(err.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
-    // Do not prevent default: allow Netlify Forms to capture submission
   };
 
   if (success) {

@@ -54,11 +54,9 @@ export default function Navbar() {
                 <Link href="/dashboard" className="btn-secondary text-sm">
                   Dashboard
                 </Link>
-                <form action="/api/auth/logout" method="post">
-                  <button type="submit" className="btn-primary text-sm">
-                    Logout
-                  </button>
-                </form>
+                <button className="btn-primary text-sm">
+                  Logout
+                </button>
               </>
             ) : (
               <>
@@ -114,14 +112,11 @@ export default function Navbar() {
                   >
                     Dashboard
                   </Link>
-                  <form action="/api/auth/logout" method="post">
-                    <button
-                      type="submit"
-                      className="w-full text-left px-3 py-2 rounded-lg text-neon-green"
-                    >
-                      Logout
-                    </button>
-                  </form>
+                  <button
+                    className="w-full text-left px-3 py-2 rounded-lg text-neon-green"
+                  >
+                    Logout
+                  </button>
                 </>
               ) : (
                 <>
