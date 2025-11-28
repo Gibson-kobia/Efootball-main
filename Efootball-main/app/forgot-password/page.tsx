@@ -13,27 +13,7 @@ export default function ForgotPasswordPage() {
     e.preventDefault();
     setError('');
     setMessage('');
-    setLoading(true);
-
-    try {
-      const res = await fetch('/api/auth/forgot-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || 'Failed to send reset code');
-      }
-
-      setMessage('Password reset code sent to your email. Please check your inbox.');
-    } catch (err: any) {
-      setError(err.message || 'Failed to send reset code');
-    } finally {
-      setLoading(false);
-    }
+    setLoading(false);
   };
 
   return (
@@ -88,4 +68,3 @@ export default function ForgotPasswordPage() {
     </div>
   );
 }
-

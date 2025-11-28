@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -38,52 +38,15 @@ interface Notification {
 
 export default function DashboardPage() {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
-  const [matches, setMatches] = useState<Match[]>([]);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [user] = useState<User>({ id: 0, email: '', full_name: '', role: 'player', status: 'pending' });
+  const [matches] = useState<Match[]>([]);
+  const [notifications] = useState<Notification[]>([]);
+  const [loading] = useState(false);
   const [activeTab, setActiveTab] = useState<'matches' | 'notifications' | 'profile'>('matches');
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  // Removed API data fetching to keep site static
 
-  const fetchData = async () => {
-    try {
-      const [userRes, matchesRes, notificationsRes] = await Promise.all([
-        fetch('/api/auth/me'),
-        fetch('/api/dashboard/matches'),
-        fetch('/api/dashboard/notifications'),
-      ]);
-
-      if (!userRes.ok) {
-        router.push('/login');
-        return;
-      }
-
-      const userData = await userRes.json();
-      setUser(userData.user);
-
-      if (matchesRes.ok) {
-        const matchesData = await matchesRes.json();
-        setMatches(matchesData.matches || []);
-      }
-
-      if (notificationsRes.ok) {
-        const notificationsData = await notificationsRes.json();
-        setNotifications(notificationsData.notifications || []);
-      }
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const markNotificationRead = async (id: number) => {
-    await fetch(`/api/dashboard/notifications/${id}/read`, { method: 'POST' });
-    fetchData();
-  };
+  // Removed API interaction for notifications
 
   if (loading) {
     return (
@@ -93,9 +56,7 @@ export default function DashboardPage() {
     );
   }
 
-  if (!user) {
-    return null;
-  }
+  // Ensure UI renders without backend data
 
   const unreadCount = notifications.filter(n => !n.read).length;
   const currentMatch = matches.find(m => m.status === 'pending' || m.status === 'in_progress');
@@ -281,7 +242,6 @@ export default function DashboardPage() {
                   </div>
                   {!notification.read && (
                     <button
-                      onClick={() => markNotificationRead(notification.id)}
                       className="text-gray-400 hover:text-neon-green"
                     >
                       Mark read
@@ -324,4 +284,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-

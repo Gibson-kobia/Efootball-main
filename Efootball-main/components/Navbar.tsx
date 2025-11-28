@@ -2,20 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 export default function Navbar() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  useEffect(() => {
-    // Check if user is logged in
-    fetch('/api/auth/me')
-      .then(res => res.ok)
-      .then(ok => setIsLoggedIn(ok))
-      .catch(() => setIsLoggedIn(false));
-  }, []);
+  // Removed API-based auth checks to keep site static
 
   const navLinks = [
     { href: '/', label: 'Home' },
@@ -154,4 +148,3 @@ export default function Navbar() {
     </nav>
   );
 }
-

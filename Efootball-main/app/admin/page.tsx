@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface User {
@@ -29,93 +29,18 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<'registrations' | 'matches' | 'bracket'>('registrations');
   const [users, setUsers] = useState<User[]>([]);
   const [matches, setMatches] = useState<Match[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
+  const [loading] = useState(false);
+  const [user] = useState<any>(null);
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
+  // Removed API-based auth and data fetching to keep site static
 
-  const checkAuth = async () => {
-    try {
-      const res = await fetch('/api/auth/me');
-      if (!res.ok) {
-        router.push('/login');
-        return;
-      }
-      const data = await res.json();
-      if (data.user.role !== 'admin') {
-        router.push('/dashboard');
-        return;
-      }
-      setUser(data.user);
-      fetchData();
-    } catch (error) {
-      router.push('/login');
-    }
-  };
+  // Removed API data fetch functions
 
-  const fetchData = async () => {
-    try {
-      const [usersRes, matchesRes] = await Promise.all([
-        fetch('/api/admin/users'),
-        fetch('/api/admin/matches'),
-      ]);
+  const approveUser = async (userId: number) => {};
 
-      if (usersRes.ok) {
-        const usersData = await usersRes.json();
-        setUsers(usersData.users || []);
-      }
+  const rejectUser = async (userId: number) => {};
 
-      if (matchesRes.ok) {
-        const matchesData = await matchesRes.json();
-        setMatches(matchesData.matches || []);
-      }
-    } catch (error) {
-      console.error('Error fetching admin data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const approveUser = async (userId: number) => {
-    try {
-      const res = await fetch(`/api/admin/users/${userId}/approve`, { method: 'POST' });
-      if (res.ok) {
-        fetchData();
-      }
-    } catch (error) {
-      console.error('Error approving user:', error);
-    }
-  };
-
-  const rejectUser = async (userId: number) => {
-    try {
-      const res = await fetch(`/api/admin/users/${userId}/reject`, { method: 'POST' });
-      if (res.ok) {
-        fetchData();
-      }
-    } catch (error) {
-      console.error('Error rejecting user:', error);
-    }
-  };
-
-  const generateBracket = async () => {
-    if (!confirm('Generate tournament bracket? This cannot be undone.')) return;
-    
-    try {
-      const res = await fetch('/api/admin/bracket/generate', { method: 'POST' });
-      if (res.ok) {
-        alert('Bracket generated successfully!');
-        fetchData();
-      } else {
-        const data = await res.json();
-        alert(data.message || 'Failed to generate bracket');
-      }
-    } catch (error) {
-      console.error('Error generating bracket:', error);
-    }
-  };
+  const generateBracket = async () => {};
 
   if (loading) {
     return (
@@ -331,4 +256,3 @@ export default function AdminPage() {
     </div>
   );
 }
-

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 interface Match {
   id: number;
@@ -25,26 +25,8 @@ interface Round {
 }
 
 export default function BracketPage() {
-  const [bracket, setBracket] = useState<{ rounds: Round[] } | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchBracket();
-  }, []);
-
-  const fetchBracket = async () => {
-    try {
-      const res = await fetch('/api/bracket');
-      if (res.ok) {
-        const data = await res.json();
-        setBracket(data);
-      }
-    } catch (error) {
-      console.error('Error fetching bracket:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [bracket] = useState<{ rounds: Round[] } | null>(null);
+  const [loading] = useState(false);
 
   if (loading) {
     return (
@@ -151,4 +133,3 @@ export default function BracketPage() {
     </div>
   );
 }
-

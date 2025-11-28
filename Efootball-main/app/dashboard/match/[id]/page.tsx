@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 
 interface Match {
@@ -22,7 +22,7 @@ export default function MatchPage() {
   const params = useParams();
   const router = useRouter();
   const [match, setMatch] = useState<Match | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
     player1Score: '',
@@ -31,32 +31,7 @@ export default function MatchPage() {
   });
   const [user, setUser] = useState<any>(null);
 
-  useEffect(() => {
-    fetchMatch();
-    fetchUser();
-  }, []);
-
-  const fetchUser = async () => {
-    const res = await fetch('/api/auth/me');
-    if (res.ok) {
-      const data = await res.json();
-      setUser(data.user);
-    }
-  };
-
-  const fetchMatch = async () => {
-    try {
-      const res = await fetch(`/api/matches/${params.id}`);
-      if (res.ok) {
-        const data = await res.json();
-        setMatch(data.match);
-      }
-    } catch (error) {
-      console.error('Error fetching match:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Removed API fetching to keep site static
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -66,33 +41,7 @@ export default function MatchPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setUploading(true);
-
-    try {
-      const formDataToSend = new FormData();
-      formDataToSend.append('player1Score', formData.player1Score);
-      formDataToSend.append('player2Score', formData.player2Score);
-      if (formData.screenshot) {
-        formDataToSend.append('screenshot', formData.screenshot);
-      }
-
-      const res = await fetch(`/api/matches/${params.id}/result`, {
-        method: 'POST',
-        body: formDataToSend,
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.message || 'Failed to upload result');
-      }
-
-      alert('Result uploaded successfully! Admin will verify it soon.');
-      router.push('/dashboard');
-    } catch (error: any) {
-      alert(error.message || 'Failed to upload result');
-    } finally {
-      setUploading(false);
-    }
+    setUploading(false);
   };
 
   if (loading) {
@@ -239,4 +188,3 @@ export default function MatchPage() {
     </div>
   );
 }
-

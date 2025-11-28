@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -17,40 +17,25 @@ export default function RegisterPage() {
     platform: 'mobile',
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    try {
+      const persisted = typeof window !== 'undefined' && window.localStorage.getItem('registration_success') === 'true';
+      if (persisted) setSuccess(true);
+    } catch {}
+  }, []);
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     setError('');
     setLoading(true);
-
     try {
-      const res = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fullName: formData.fullName,
-          email: formData.email,
-          konamiId: formData.konamiId,
-          efootballPassword: formData.efootballPassword,
-          platform: formData.platform,
-          password: formData.efootballPassword, // Use eFootball password as website password
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || 'Registration failed');
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem('registration_success', 'true');
       }
-
       setSuccess(true);
-      setTimeout(() => {
-        router.push('/login?registered=true');
-      }, 2000);
-    } catch (err: any) {
-      setError(err.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
+    // Do not prevent default: allow Netlify Forms to capture submission
   };
 
   if (success) {
@@ -59,11 +44,7 @@ export default function RegisterPage() {
         <div className="card text-center">
           <div className="text-6xl mb-4">✅</div>
           <h2 className="text-2xl font-bold text-neon-green mb-4">Registration Successful!</h2>
-          <p className="text-gray-300 mb-6">
-            Your registration has been received. An admin will review and approve your account soon.
-            You'll receive an email notification once approved.
-          </p>
-          <p className="text-sm text-gray-400">Redirecting to login...</p>
+          <p className="text-gray-300 mb-6">Your registration has been received and is pending approval.</p>
         </div>
       </div>
     );
@@ -81,7 +62,8 @@ export default function RegisterPage() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4" name="registration" data-netlify="true" method="POST">
+          <input type="hidden" name="form-name" value="registration" />
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
               Full Name *
@@ -91,6 +73,7 @@ export default function RegisterPage() {
               required
               className="input-field"
               value={formData.fullName}
+              name="fullName"
               onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
               placeholder="John Doe"
             />
@@ -109,6 +92,7 @@ export default function RegisterPage() {
                   required
                   className="input-field"
                   value={formData.konamiId}
+                  name="konamiId"
                   onChange={(e) => setFormData({ ...formData, konamiId: e.target.value })}
                   placeholder="Konami ID or email address"
                 />
@@ -120,6 +104,7 @@ export default function RegisterPage() {
                   required
                   className="input-field"
                   value={formData.efootballPassword}
+                  name="efootballPassword"
                   onChange={(e) => setFormData({ ...formData, efootballPassword: e.target.value })}
                   placeholder="eFootball account password"
                 />
@@ -131,29 +116,31 @@ export default function RegisterPage() {
             <label className="block text-sm font-medium text-gray-300 mb-2">
               Email Address *
             </label>
-            <input
-              type="email"
-              required
-              className="input-field"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              placeholder="john@example.com"
-            />
-          </div>
+              <input
+                type="email"
+                required
+                className="input-field"
+                value={formData.email}
+                name="email"
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                placeholder="john@example.com"
+              />
+            </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
               Platform *
             </label>
-            <select
-              required
-              className="input-field"
-              value={formData.platform}
-              onChange={(e) => setFormData({ ...formData, platform: e.target.value })}
-            >
-              <option value="mobile">Mobile</option>
-            </select>
-          </div>
+              <select
+                required
+                className="input-field"
+                value={formData.platform}
+                name="platform"
+                onChange={(e) => setFormData({ ...formData, platform: e.target.value })}
+              >
+                <option value="mobile">Mobile</option>
+              </select>
+            </div>
 
           <button
             type="submit"
@@ -181,4 +168,3 @@ export default function RegisterPage() {
     </div>
   );
 }
-
